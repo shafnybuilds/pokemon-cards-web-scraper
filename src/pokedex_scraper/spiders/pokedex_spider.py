@@ -30,3 +30,24 @@ class PokedexSpider(scrapy.Spider):
         for url in urls:
             if re.match(r"^https://pokemondb\.net/pokedex/[^/]+$", url):
                 yield scrapy.Request(url=url, callback=self.parse_pokemon)
+
+    def parse_pokemon(self, response: HtmlResponse):
+        response.xpath(
+            '//main[@id="main" and contains(@class, "main-content") and contains(@class, "grid-container")]'
+        ).get()
+
+        # select all direct children of <main> and exclude <nav>
+        content_parts = response.xpath(
+            '//main[@id="main" and contains(@class, "main-content") and contains(@class, "grid-container")]/*[not(self::nav)]'
+        ).getall()
+
+        # join this to one HTML string
+        cleaned_html = "".join(content_parts)
+
+        pokemon_name = response.url.split("/")[-1]
+
+        yield PokedexEntry(
+            pokemon_name=response.url.split("/")[-1],
+            url=response.url,
+            html=cleaned_html,
+        )
