@@ -28,10 +28,12 @@ class PokedexSpider(scrapy.Spider):
 
         # for this use case, i have to scrape: https:pokemondb.net/charizard
         for url in urls:
+            # i used regex to match that we are scraping actually pokemon info contain urls and regex actually fast
             if re.match(r"^https://pokemondb\.net/pokedex/[^/]+$", url):
                 yield scrapy.Request(url=url, callback=self.parse_pokemon)
 
     def parse_pokemon(self, response: HtmlResponse):
+        # debugging code snippet
         response.xpath(
             '//main[@id="main" and contains(@class, "main-content") and contains(@class, "grid-container")]'
         ).get()
